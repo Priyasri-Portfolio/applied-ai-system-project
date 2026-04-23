@@ -1,0 +1,100 @@
+# PawPal Pet Care Knowledge Base
+# Source: Veterinary care guidelines — used for RAG retrieval
+
+[FEEDING]
+rule: Dogs should not exercise vigorously within 30 minutes of eating to avoid bloat (gastric dilatation-volvulus).
+applies_to: dog
+keywords: feed, walk, exercise, run, bloat
+
+rule: Cats should be fed small meals 2-3 times per day rather than one large meal.
+applies_to: cat
+keywords: feed, meal, cat, portion
+
+rule: Senior pets (dogs over 7, cats over 10) may need smaller, more frequent meals due to reduced digestive efficiency.
+applies_to: dog, cat
+keywords: senior, old, age, feed, meal
+
+rule: Medications should generally be given with food unless the vet specifies otherwise, to reduce stomach upset.
+applies_to: dog, cat, rabbit, bird
+keywords: medication, medicine, pill, food, meal
+
+[EXERCISE]
+rule: Dogs with hip dysplasia should limit exercise to 15-20 minute gentle walks. Avoid running, jumping, or stairs.
+applies_to: dog
+keywords: hip dysplasia, walk, exercise, run, jump
+
+rule: Brachycephalic breeds (Bulldogs, Pugs, French Bulldogs) should not exercise in heat or for more than 20 minutes at a time due to breathing difficulties.
+applies_to: dog
+keywords: bulldog, pug, french bulldog, brachycephalic, exercise, heat, walk
+
+rule: Senior dogs (7+ years) should have shorter, gentler exercise sessions. Limit walks to 20-30 minutes.
+applies_to: dog
+keywords: senior, old, dog, walk, exercise
+
+rule: Cats over age 10 are considered senior. Keep play sessions to 10-15 minutes to avoid overexertion.
+applies_to: cat
+keywords: senior, old, cat, play, exercise
+
+rule: Dogs with heart conditions should not engage in strenuous activity. Gentle 10-15 minute walks only; consult vet.
+applies_to: dog
+keywords: heart, cardiac, condition, exercise, walk, run
+
+rule: Puppies under 6 months should not do high-impact exercise. Limit walks to 5 minutes per month of age.
+applies_to: dog
+keywords: puppy, young, exercise, walk, jump
+
+[GROOMING]
+rule: Long-haired breeds (Persian cats, Golden Retrievers, Collies) should be brushed daily to prevent matting.
+applies_to: dog, cat
+keywords: groom, brush, long hair, mat, persian, golden, collie
+
+rule: Nail trimming should be done every 3-4 weeks for most dogs and cats.
+applies_to: dog, cat
+keywords: nail, trim, groom
+
+rule: Ear cleaning should be done gently and only when needed. Over-cleaning can cause irritation.
+applies_to: dog, cat
+keywords: ear, clean, groom
+
+[MEDICATION]
+rule: Never skip a dose of prescribed medication. If a dose is missed, follow vet instructions — do not double-dose.
+applies_to: dog, cat, rabbit, bird
+keywords: medication, dose, missed, skip, pill
+
+rule: Flea and tick prevention should be applied monthly and never combined with other topical treatments without vet approval.
+applies_to: dog, cat
+keywords: flea, tick, prevention, topical, medication
+
+rule: Pain medication (NSAIDs) should always be given with food and never on an empty stomach.
+applies_to: dog, cat
+keywords: pain, NSAID, medication, food, empty stomach
+
+[HEALTH CONDITIONS]
+rule: Diabetic pets require feeding and insulin on a strict schedule. Never delay meals more than 30 minutes.
+applies_to: dog, cat
+keywords: diabetes, diabetic, insulin, feed, schedule, strict
+
+rule: Arthritic pets benefit from gentle range-of-motion activity but should avoid high-impact exercise and cold surfaces.
+applies_to: dog, cat
+keywords: arthritis, arthritic, joint, exercise, walk, cold
+
+rule: Overweight pets should have exercise gradually increased. Start with 10-minute walks and build up slowly.
+applies_to: dog, cat
+keywords: overweight, obese, weight, exercise, walk
+
+rule: Pets recovering from surgery should rest for the vet-specified period. No running, jumping, or rough play.
+applies_to: dog, cat, rabbit
+keywords: surgery, recovery, rest, exercise, jump, run
+
+[GENERAL SAFETY]
+rule: Pets should always have access to fresh water, especially during and after exercise.
+applies_to: dog, cat, rabbit, bird
+keywords: water, hydration, exercise, heat
+
+rule: Grooming sessions should be kept calm and positive. Stressed pets may need shorter sessions with breaks.
+applies_to: dog, cat
+keywords: groom, stress, calm, session, break
+
+rule: Never schedule two high-intensity activities back to back without a 30-minute rest period.
+applies_to: dog, cat
+keywords: exercise, walk, run, play, rest, schedule, overlap
