@@ -288,20 +288,21 @@ Support multi-day and recurring schedule generation
 ## 10. File Structure
 
 Applied-AI-System-Project/
-├── agent.py              # 4-step agentic pipeline orchestrator
-├── retriever.py          # RAG module — searches knowledge base
-├── planner.py            # LLM caller (Groq API)
-├── evaluator.py          # Deterministic safety guardrails
+├── README.md
 ├── tests/
 │   └── test_evaluator.py     # Test harness — 8 preset scenarios
 ├── src/
 │   └── pawpal_system.py      # Base scheduler (original Module 2 code)
 │   └── main.py               # Demo script — runs 3 pet profiles
+│   └── agent.py              # 4-step agentic pipeline orchestrator
+│   └── retriever.py          # RAG module — searches knowledge base
+│   └── planner.py            # LLM caller (Groq API)
+│   └── evaluator.py          # Deterministic safety guardrails
 ├── demo1.py              # Individual demo — Bella
 ├── demo2.py              # Individual demo — Max
 ├── demo3.py              # Individual demo — Whiskers
 ├── requirements.txt
-├── .env                  # Your API key (never committed)
+├── .env                  # Your API key 
 ├── model_card.md         # AI reflection and ethics
 ├── data/
 │   └── petcare_rules.txt  # RAG knowledge base (23 rules)
