@@ -4,13 +4,14 @@
 
 The **Pet Service Scheduler** is an intelligent pet care scheduling system that generates safe, prioritized daily care plans for pets. Originally built as a rule-based task scheduler (Project 2), it was upgraded into a full applied AI system (Project 4) by integrating three core capabilities:
 
+
+
 - **Retrieval-Augmented Generation (RAG)** — grounds every schedule in a curated knowledge base of pet care safety rules
 - **Agentic Workflow** — a multi-step pipeline that analyzes input, retrieves relevant rules, plans a schedule via LLM, and self-evaluates before outputting
 - **Automated Guardrails** — deterministic safety checks that flag or reject schedules violating care constraints
 
 Given a pet's profile (species, breed, age, weight, health conditions), a list of care tasks, and owner-specified priorities, the system produces a validated daily schedule that respects both safety rules and personal preferences.
-
----
+> **Loom video walkthrough:** https://www.loom.com/share/e439e796d61546a680d9a1a0962460ab
 
 ## 2. Original Project Description
 
@@ -33,7 +34,7 @@ The Project 4 upgrade addresses all three gaps.
 
 ### 3.1 Retrieval-Augmented Generation (RAG)
 
-A curated knowledge base (`data/pet_care_rules.txt`) contains 10–15 veterinary-informed pet care rules covering topics like feeding-exercise spacing, medication timing, breed-specific activity limits, and age-appropriate care. At runtime, the retriever module searches this file and injects only the relevant rules into the LLM prompt — grounding every schedule in domain knowledge rather than relying on the model's general training.
+A curated knowledge base (`Data/petcare_rules.txt`) contains 23 veterinary-informed pet care rules covering topics like feeding-exercise spacing, medication timing, breed-specific activity limits, and age-appropriate care. At runtime, the retriever module searches this file and injects only the relevant rules into the LLM prompt — grounding every schedule in domain knowledge rather than relying on the model's general training.
 
 **Why RAG?** It keeps the system accurate and updatable. New rules can be added to the text file without retraining or modifying code.
 
@@ -41,7 +42,7 @@ A curated knowledge base (`data/pet_care_rules.txt`) contains 10–15 veterinary
 
 Instead of a single-pass generation, the system follows a structured multi-step agent loop:
 
-1. **Analyze** — Parse and validate the pet profile and task list (`analyzer.py`)
+1. **Analyze** — Parse and validate the pet profile and task list (`agent.py` Step 1)
 2. **Retrieve** — Search the knowledge base for rules relevant to this pet (`retriever.py`)
 3. **Plan** — Generate a prioritized schedule via LLM using pet info + retrieved rules + owner priorities (`planner.py`)
 4. **Evaluate** — Run the proposed schedule through deterministic safety checks (`evaluator.py`)
@@ -75,7 +76,7 @@ The system follows a linear pipeline architecture. User input flows into the Ana
 ### Prerequisites
 
 - Python 3.10+
-- An OpenAI API key (or compatible LLM endpoint)
+- A free Groq API key (get one at console.groq.com — no credit card required)
 
 ### Installation
 
@@ -85,84 +86,144 @@ git clone https://github.com/<your-username>/ai-pet-scheduler.git
 cd ai-pet-scheduler
 
 # Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate        # macOS / Linux
-venv\Scripts\activate           # Windows
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+.venv\Scripts\activate           # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Set your API key
-export OPENAI_API_KEY="your-key-here"       # macOS / Linux
-set OPENAI_API_KEY=your-key-here             # Windows
+# Add your API key to a .env file
+echo GROQ_API_KEY=your-key-here > .env
 
-#Run the Scheduler
+# Run the Scheduler
 python main.py
 
-#Run Tests
-python -m pytest test_scheduler.py -v
+# Run Tests
+python -m pytest tests/test_evaluator.py -v
 
 ## 6. Example Inputs/Outputs
-Input:
-Example 1 — Standard Dog Schedule (All Checks Pass)
-Pet: Bella — 3-year-old Golden Retriever, 65 lbs, mild hip dysplasia
-Tasks: morning walk, breakfast, medication, afternoon play, dinner, evening walk
-Priorities: medication before meals, no exercise within 30 min of eating
 
-Output:
-Daily Schedule for Bella (Golden Retriever, 3 yrs)
-───────────────────────────────────────
-  7:00 AM   Medication
-  7:30 AM   Breakfast
-  8:15 AM   Morning walk (moderate pace — hip dysplasia noted)
- 12:30 PM   Afternoon play (low-impact activities recommended)
-  5:30 PM   Dinner
-  6:15 PM   Evening walk (shorter duration recommended)
-───────────────────────────────────────
-Schedule passed all safety checks.
-Rules applied: exercise spacing, medication timing, hip dysplasia activity limits
+---
 
-Example 2: Guardrail Triggered (Unsafe--> Re-planned)
-Input:
-Pet: Max — 10-year-old Bulldog, 50 lbs, heart condition
-Tasks: 1-hour run, breakfast, medication
-Priorities: exercise first thing
+### Example 1 — Healthy Dog (All Checks Pass)
 
-Output:
-Schedule flagged by safety evaluator:
-  - VIOLATION: 1-hour run exceeds safe activity duration for a dog
-    with a heart condition
-  - RECOMMENDATION: Reduce to 15-20 min gentle walk;
-    consult veterinarian for exercise plan
+**Input:**
+- Pet: Bella — 3-year-old Golden Retriever, 65 lbs, no health conditions
+- Tasks: Feed (10 min, HIGH), Medication (5 min, HIGH), Morning Walk (30 min, MEDIUM), Groom (20 min, LOW), Evening Walk (20 min, MEDIUM)
+- Available time: 480 minutes
 
-Re-generating schedule with adjusted constraints...
+**Output:**
+```
+STEP 1/4 — Analyzing pet profile and task list
+  Found 5 task(s) to schedule
 
-Revised Schedule for Max (Bulldog, 10 yrs)
-───────────────────────────────────────
-  7:00 AM   Medication
-  7:30 AM   Breakfast
-  8:15 AM   Gentle walk (15 min — heart condition limit applied)
-───────────────────────────────────────
-Revised schedule passed all safety checks.
+STEP 2/4 — Retrieving relevant safety rules (RAG)
+  Retrieved 19 relevant safety rule(s)
 
-Example 3 — Senior Cat with Age-Specific Rules
+STEP 3/4 — Generating schedule via LLM (attempt 1/3)
+  LLM returned 5 schedule entry/entries
 
-Input:
-Pet: Whiskers — 14-year-old Persian cat, 9 lbs, arthritis
-Tasks: breakfast, medication, gentle play, grooming, dinner
-Priorities: keep play sessions short, medication with meals
+STEP 4/4 — Evaluating schedule against safety guardrails
+  ✅ All safety checks passed.
 
-Output:
-Daily Schedule for Whiskers (Persian, 14 yrs)
-───────────────────────────────────────
-  7:30 AM   Breakfast + Medication (administered with food)
- 10:00 AM   Gentle play (10 min max — arthritis noted)
-  2:00 PM   Grooming (gentle brushing, low-stress positioning)
-  6:00 PM   Dinner + Medication (administered with food)
-───────────────────────────────────────
-Schedule passed all safety checks.
-Rules applied: senior cat activity limits, medication-meal pairing,
-arthritis-safe handling, play duration cap
+  ✅ Final Schedule for Bella
+  07:00 AM     | Feed                 | Given first so medication can follow with food
+  07:10 AM     | Medication           | Administered with breakfast to reduce stomach upset
+  07:40 AM     | Morning Walk         | Scheduled 30+ min after feeding to prevent bloat
+  08:10 AM     | Groom                | Done after walk to prevent matting, with calm and positive approach
+  05:00 PM     | Evening Walk         | Scheduled to provide adequate exercise without being too strenuous
+
+  📋 Safety Summary: The schedule prioritizes feeding and medication first, followed by
+  walks and grooming, to prevent bloat, reduce stomach upset, and maintain a calm
+  environment for a healthy 3-year-old Golden Retriever.
+```
+**Result:** ✅ PASSED — 1 attempt, 19 rules applied
+
+---
+
+### Example 2 — Dog with Heart Condition (Guardrail Applied)
+
+**Input:**
+- Pet: Max — 10-year-old Bulldog, 50 lbs, heart condition
+- Tasks: Feed (10 min, HIGH), Medication (5 min, HIGH), Walk (30 min, MEDIUM)
+- Available time: 240 minutes
+
+**Output:**
+```
+STEP 1/4 — Analyzing pet profile and task list
+  Found 3 task(s) to schedule
+  Health conditions: heart condition
+
+STEP 2/4 — Retrieving relevant safety rules (RAG)
+  Retrieved 16 relevant safety rule(s)
+  (includes heart condition limits and brachycephalic breed rules)
+
+STEP 3/4 — Generating schedule via LLM (attempt 1/3)
+  LLM returned 3 schedule entry/entries
+
+STEP 4/4 — Evaluating schedule against safety guardrails
+  ✅ All safety checks passed.
+
+  ✅ Final Schedule for Max
+  07:00 AM     | Feed                 | Given first so medication can follow with food
+  07:10 AM     | Medication           | Administered with breakfast to reduce stomach upset
+  07:40 AM     | Walk                 | Limited to 15 min due to heart condition and
+                                        brachycephalic breed limitations
+
+  📋 Safety Summary: The schedule prioritizes feeding and medication, while limiting
+  exercise to a safe duration considering Max's heart condition and Bulldog breed.
+```
+**Result:** ✅ PASSED — 1 attempt, 16 rules applied
+
+---
+
+### Example 3 — Senior Cat with Arthritis (Age-Specific Rules Applied)
+
+**Input:**
+- Pet: Whiskers — 14-year-old Persian cat, 9 lbs, arthritis
+- Tasks: Feed (10 min, HIGH), Medication (5 min, HIGH), Gentle Play (15 min, MEDIUM), Groom (20 min, LOW)
+- Available time: 360 minutes
+
+**Output:**
+```
+STEP 1/4 — Analyzing pet profile and task list
+  Found 4 task(s) to schedule
+  Health conditions: arthritis
+
+STEP 2/4 — Retrieving relevant safety rules (RAG)
+  Retrieved 14 relevant safety rule(s)
+  (includes senior cat limits, arthritis care, Persian grooming rules)
+
+STEP 3/4 — Generating schedule via LLM (attempt 1/3)
+  LLM returned 6 schedule entry/entries
+
+STEP 4/4 — Evaluating schedule against safety guardrails
+  ✅ All safety checks passed.
+
+  ✅ Final Schedule for Whiskers
+  07:00 AM     | Feed                 | Given first so medication can follow with food
+  07:10 AM     | Medication           | Administered with breakfast to reduce stomach upset
+  08:00 AM     | Gentle Play          | After feeding and medication; avoids overexertion
+  09:00 AM     | Groom                | After rest; calm session to prevent matting in long coat
+  12:00 PM     | Feed                 | Second meal — small frequent meals for senior digestion
+  05:00 PM     | Feed                 | Third meal — maintaining senior cat feeding schedule
+
+  📋 Safety Summary: The schedule prioritizes Whiskers' arthritis and senior age by
+  providing small frequent meals, gentle play, and calm grooming, while ensuring
+  medication is paired with food.
+```
+**Result:** ✅ PASSED — 1 attempt, 14 rules applied
+
+---
+
+### Final Summary (all 3 demos)
+
+```
+  Bella        ✅ PASSED   1 attempt(s)   19 rule(s) applied
+  Max          ✅ PASSED   1 attempt(s)   16 rule(s) applied
+  Whiskers     ✅ PASSED   1 attempt(s)   14 rule(s) applied
+```
 
 
 ## 7. Design Decisions
@@ -193,7 +254,7 @@ Guardrail tests were the most reliable. Because the evaluator is deterministic, 
 Modular architecture made unit testing straightforward. Each module has a clear input/output contract, so testing the retriever or analyzer in isolation required no mocking of the LLM.
 
 What Didn't Work (At First)
-LLM output was initially inconsistent in format. Early integration tests failed because the planner sometimes returned schedules in slightly different formats (e.g., "7:00am" vs. "7:00 AM"). I had to add output normalization in utils.py to handle variations before the evaluator could parse them reliably.
+LLM output was initially inconsistent in format. Early integration tests failed because the planner sometimes returned schedules in slightly different formats (e.g., "7:00am" vs. "7:00 AM"). The parser in `planner.py` handles this gracefully by splitting on the pipe delimiter rather than strict time parsing.
 
 Edge case with conflicting priorities was hard to test. When owner priorities directly contradicted safety rules (e.g., "exercise immediately after eating"), the re-planning loop initially ran indefinitely. Adding a retry cap and testing that specific scenario fixed the issue.
 
@@ -224,6 +285,27 @@ Add a Streamlit front-end for interactive scheduling
 
 Support multi-day and recurring schedule generation
 
+## 10. File Structure
 
+Applied-AI-System-Project/
+├── agent.py              # 4-step agentic pipeline orchestrator
+├── retriever.py          # RAG module — searches knowledge base
+├── planner.py            # LLM caller (Groq API)
+├── evaluator.py          # Deterministic safety guardrails
+├── main.py               # Demo script — runs 3 pet profiles
+├── test_evaluator.py     # Test harness — 8 preset scenarios
+├── pawpal_system.py      # Base scheduler (original Module 2 code)
+├── demo1.py              # Individual demo — Bella
+├── demo2.py              # Individual demo — Max
+├── demo3.py              # Individual demo — Whiskers
+├── requirements.txt
+├── .env                  # Your API key (never committed)
+├── model_card.md         # AI reflection and ethics
+├── data/
+│   └── petcare_rules.txt  # RAG knowledge base (23 rules)
+├── assets/
+│   └── system_architecture.png
+└── logs/
+    └── pawpal_agent.log
 
 
