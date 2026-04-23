@@ -2,18 +2,20 @@
 planner.py — LLM-powered schedule planner for PawPal AI
 
 Takes a pet profile, task list, and retrieved safety rules, builds a
-structured prompt, and calls the Google Gemini API (via google-genai)
+structured prompt, and calls the Groq API (via groq SDK)
 to generate a natural-language daily schedule with time slots and
 safety reasoning.
 
-API key source: GOOGLE_API_KEY in your .env file
-Get your free key at: aistudio.google.com
+API key source: GROQ_API_KEY in your .env file
+Get your free key at: console.groq.com
 """
 
 import os
+import re
+import time
 import logging
 from typing import List
-from google import genai
+from groq import Groq
 
 logger = logging.getLogger(__name__)
 
@@ -74,36 +76,46 @@ def call_llm(prompt: str, max_retries: int = 3) -> str:
     Call the Google Gemini API with the given prompt.
     Returns the text response. Raises RuntimeError on total failure.
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         raise EnvironmentError(
-            "GOOGLE_API_KEY not set.\n"
-            "1. Get your free key at: aistudio.google.com\n"
+            "GROQ_API_KEY not set.\n"
+            "1. Get your free key at: console.groq.com\n"
             "2. Add this line to your .env file:\n"
-            "   GOOGLE_API_KEY=your-key-here"
+            "   GROQ_API_KEY=your-key-here"
         )
 
-    client = genai.Client(api_key=api_key)
+    client = Groq(api_key=api_key)
 
     for attempt in range(1, max_retries + 1):
         try:
             logger.info(f"LLM call attempt {attempt}/{max_retries}")
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1024,
             )
-            response_text = response.text
+            response_text = response.choices[0].message.content
             logger.info("LLM call succeeded")
             return response_text
 
         except Exception as e:
             error_msg = str(e).lower()
             logger.warning(f"Attempt {attempt} failed: {e}")
-            if "api_key" in error_msg or "invalid" in error_msg or "permission" in error_msg:
+            if "api_key" in error_msg or "invalid" in error_msg or "authentication" in error_msg:
                 raise EnvironmentError(
                     f"API key error: {e}\n"
-                    "Check your GOOGLE_API_KEY in the .env file."
+                    "Check your GROQ_API_KEY in the .env file."
                 )
+            # Rate limit: use the API's suggested retry delay if present
+            if "429" in error_msg or "rate_limit" in error_msg or "rate limit" in error_msg:
+                m = re.search(r"try again in (\d+(?:\.\d+)?)s", str(e), re.IGNORECASE)
+                wait = int(float(m.group(1))) + 2 if m else 30 * attempt
+                print(f"  ⏳ Rate limit hit — waiting {wait}s before retry {attempt}/{max_retries}...")
+                logger.warning(f"Rate limit hit. Sleeping {wait}s before retry.")
+                time.sleep(wait)
+            elif attempt < max_retries:
+                time.sleep(2)
             if attempt == max_retries:
                 raise RuntimeError(f"LLM call failed after {max_retries} attempts: {e}")
 
