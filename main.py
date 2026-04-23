@@ -9,14 +9,15 @@ Demonstrates the full agentic pipeline on 3 pet profiles:
 Run with:
     python main.py
 
-Requires GOOGLE_API_KEY in your .env file.
-Get a free key at: aistudio.google.com
+Requires GROQ_API_KEY in your .env file.
+Get a free key at: console.groq.com
 """
 
 import os
 import sys
+import time
 from dotenv import load_dotenv
-load_dotenv()  # reads GOOGLE_API_KEY from .env file
+load_dotenv()  # reads GROQ_API_KEY from .env file
 from pawpal_system import Owner, Pet, Task, PriorityLevel
 from agent import run_agent
 
@@ -108,14 +109,18 @@ def print_summary(results: list):
 
 if __name__ == "__main__":
     # Check API key before running anything
-    if not os.environ.get("GOOGLE_API_KEY"):
-        print("\n❌ GOOGLE_API_KEY not set.")
-        print("   1. Get your free key at: aistudio.google.com")
-        print("   2. Add this to your .env file:  GOOGLE_API_KEY=your-key-here")
+    if not os.environ.get("GROQ_API_KEY"):
+        print("\n❌ GROQ_API_KEY not set.")
+        print("   1. Get your free key at: console.groq.com")
+        print("   2. Add this to your .env file:  GROQ_API_KEY=your-key-here")
         sys.exit(1)
 
     results = []
     results.append(demo_1_healthy_dog())
+    print("\n  ⏳ Pausing 15s between demos (free-tier rate limit)...")
+    time.sleep(15)
     results.append(demo_2_dog_with_heart_condition())
+    print("\n  ⏳ Pausing 15s between demos (free-tier rate limit)...")
+    time.sleep(15)
     results.append(demo_3_senior_cat())
     print_summary(results)
