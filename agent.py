@@ -14,9 +14,13 @@ Each step prints observable output so the intermediate reasoning is transparent.
 import logging
 import os
 import sys
+import time
 from typing import List
 from dotenv import load_dotenv
-load_dotenv()  # reads .env file so GOOGLE_API_KEY is available
+load_dotenv()  # reads .env file so GROQ_API_KEY is available
+
+# Windows terminals default to cp1252 which can't print Unicode box-drawing chars/emoji
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 from pawpal_system import Pet, Task, Owner, Scheduler, PriorityLevel
 from retriever import retrieve_rules, format_rules_for_prompt
@@ -178,6 +182,7 @@ def run_agent(pet: Pet, available_minutes: int = 480) -> dict:
             logger.warning(f"Attempt {attempt} failed. Violations:\n{extra_context}")
             if attempt < MAX_RETRIES:
                 print(f"\n  Feeding violations back to planner for retry...")
+                time.sleep(5)  # brief gap to avoid rapid-fire requests on free tier
 
     # ── Output ─────────────────────────────────────────────────────────────────
     print(f"\n{'═'*60}")
