@@ -292,9 +292,11 @@ Applied-AI-System-Project/
 ├── retriever.py          # RAG module — searches knowledge base
 ├── planner.py            # LLM caller (Groq API)
 ├── evaluator.py          # Deterministic safety guardrails
-├── main.py               # Demo script — runs 3 pet profiles
-├── test_evaluator.py     # Test harness — 8 preset scenarios
-├── pawpal_system.py      # Base scheduler (original Module 2 code)
+├── tests/
+│   └── test_evaluator.py     # Test harness — 8 preset scenarios
+├── src/
+│   └── pawpal_system.py      # Base scheduler (original Module 2 code)
+│   └── main.py               # Demo script — runs 3 pet profiles
 ├── demo1.py              # Individual demo — Bella
 ├── demo2.py              # Individual demo — Max
 ├── demo3.py              # Individual demo — Whiskers
@@ -305,7 +307,8 @@ Applied-AI-System-Project/
 │   └── petcare_rules.txt  # RAG knowledge base (23 rules)
 ├── assets/
 │   └── system_architecture.png
-└── logs/
-    └── pawpal_agent.log
+|   └── test_results.png
+|   └── mermaid_diagram.md
+
 
 
