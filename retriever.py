@@ -12,7 +12,7 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 
-KNOWLEDGE_BASE_PATH = os.path.join(os.path.dirname(__file__), "data", "pet_care_rules.txt")
+KNOWLEDGE_BASE_PATH = os.path.join(os.path.dirname(__file__), "Data", "petcare_rules.txt")
 
 
 def load_rules(filepath: str = KNOWLEDGE_BASE_PATH) -> List[dict]:
