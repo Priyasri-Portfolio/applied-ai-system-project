@@ -4,7 +4,7 @@
 
 | Field | Details |
 |---|---|
-| Base LLM | Google Gemini 2.0 Flash (via Google AI Studio) |
+| Base LLM | Llama 3.3 70B Versatile (via Groq API) |
 | System type | RAG + Agentic Workflow |
 | Original base project | Module 2 — PawPal Pet Service Scheduler |
 | Language | Python 3.10+ |
@@ -26,7 +26,7 @@ safe for pets with specific health conditions.
 ## 3. New AI Features Added
 
 ### Retrieval-Augmented Generation (RAG)
-A curated knowledge base (`data/pet_care_rules.txt`) contains 22 veterinary-informed
+A curated knowledge base (`Data/petcare_rules.txt`) contains 23 veterinary-informed
 rules covering feeding, exercise, medication timing, and health conditions. Before
 calling the LLM, the retriever module searches this file using keyword matching and
 injects only the relevant rules into the prompt. This grounds every schedule in
