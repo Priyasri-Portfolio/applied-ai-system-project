@@ -151,7 +151,8 @@ issue could be isolated to retrieval, planning, or evaluation within minutes.
 
 **About documentation:** AI tools like Copilot are eager to help with documentation
 but will describe a system that does not exist yet. Documentation must follow
-implementation, never precede it.
+implementation, never precede it, because copilot gave me some suggestions which are not 
+practical for this project.
 
 ---
 
